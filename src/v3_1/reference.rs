@@ -21,6 +21,12 @@ pub enum ReferenceOr<T> {
         description: Option<String>,
     },
     Item(T),
+    FlattenedReference {
+        reference: String,
+        summary: Option<String>,
+        description: Option<String>,
+        item: T,
+    },
 }
 
 impl<T> ReferenceOr<T> {
@@ -55,6 +61,12 @@ impl<T> ReferenceOr<T> {
     pub fn into_item(self) -> Option<T> {
         match self {
             ReferenceOr::Reference { .. } => None,
+            ReferenceOr::FlattenedReference {
+                reference: _,
+                summary: _,
+                description: _,
+                item,
+            } => Some(item),
             ReferenceOr::Item(i) => Some(i),
         }
     }
@@ -80,6 +92,12 @@ impl<T> ReferenceOr<T> {
     pub fn as_item(&self) -> Option<&T> {
         match self {
             ReferenceOr::Reference { .. } => None,
+            ReferenceOr::FlattenedReference {
+                reference: _,
+                summary: _,
+                description: _,
+                item,
+            } => Some(item),
             ReferenceOr::Item(i) => Some(i),
         }
     }
@@ -96,6 +114,18 @@ impl<T> ReferenceOr<Box<T>> {
                 reference,
                 summary,
                 description,
+            },
+
+            ReferenceOr::FlattenedReference {
+                reference,
+                summary,
+                description,
+                item,
+            } => ReferenceOr::FlattenedReference {
+                reference,
+                summary,
+                description,
+                item: *item,
             },
             ReferenceOr::Item(boxed) => ReferenceOr::Item(*boxed),
         }
