@@ -279,6 +279,7 @@ fn test_operation_extension_docs() {
         .filter_map(|(_, i)| match i {
             ReferenceOr::Reference { .. } => None,
             ReferenceOr::Item(item) => Some(item),
+            ReferenceOr::DereferencedReference { reference: _, item } => Some(item),
         })
         .flat_map(|item| item.iter())
         .flat_map(|(_, o)| o.extensions.iter().filter(|e| !e.0.starts_with("x-")))

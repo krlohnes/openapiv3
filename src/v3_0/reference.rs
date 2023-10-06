@@ -8,6 +8,10 @@ pub enum ReferenceOr<T> {
         reference: String,
     },
     Item(T),
+    DereferencedReference {
+        reference: String,
+        item: T,
+    },
 }
 
 impl<T> ReferenceOr<T> {
@@ -41,6 +45,7 @@ impl<T> ReferenceOr<T> {
         match self {
             ReferenceOr::Reference { .. } => None,
             ReferenceOr::Item(i) => Some(i),
+            ReferenceOr::DereferencedReference { reference: _, item } => Some(item),
         }
     }
 
@@ -66,6 +71,7 @@ impl<T> ReferenceOr<T> {
         match self {
             ReferenceOr::Reference { .. } => None,
             ReferenceOr::Item(i) => Some(i),
+            ReferenceOr::DereferencedReference { reference: _, item } => Some(item),
         }
     }
 }
@@ -75,6 +81,12 @@ impl<T> ReferenceOr<Box<T>> {
         match self {
             ReferenceOr::Reference { reference } => ReferenceOr::Reference { reference },
             ReferenceOr::Item(boxed) => ReferenceOr::Item(*boxed),
+            ReferenceOr::DereferencedReference { reference, item } => {
+                ReferenceOr::DereferencedReference {
+                    reference,
+                    item: *item,
+                }
+            }
         }
     }
 }
