@@ -111,6 +111,10 @@ impl From<v3_0::Components> for Components {
                             description: None,
                         },
                     ),
+                    //TODO handle this better
+                    v3_0::ReferenceOr::DereferencedReference { reference: _, item } => {
+                        (k, ReferenceOr::Item(callback_from_v3_0(item)))
+                    }
                 })
                 .collect(),
             path_items: IndexMap::new(),

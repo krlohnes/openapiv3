@@ -145,6 +145,9 @@ impl<T> ReferenceOr<T> {
                 description: None,
             },
             v3_0::ReferenceOr::Item(item) => ReferenceOr::Item(item.into()),
+            v3_0::ReferenceOr::DereferencedReference { reference: _, item } => {
+                ReferenceOr::Item(item.into())
+            }
         }
     }
 }
