@@ -17,6 +17,7 @@ pub struct SchemaObject {
     /// been deprecated in favor of the JSON Schema `examples` keyword. Use
     /// of `example` is discouraged, and later versions of this
     /// specification may remove it.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub example: Option<serde_json::Value>,
 }
 
@@ -30,5 +31,21 @@ mod conversions {
             serde_json::from_value(oldval)
                 .expect("Convert Openapi v3.0.0 Schema to Openapi V3.1.0 Schema")
         }
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use serde_json::to_string_pretty;
+
+    #[test]
+    fn test_empty_example() {
+        let empty = SchemaObject {
+            json_schema: schemars::schema::Schema::Object(schemars::schema::SchemaObject::default()),
+            external_docs: None,
+            example: None,
+        };
+        assert_eq!("{}", &to_string_pretty(&empty).unwrap());
     }
 }
