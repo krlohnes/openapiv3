@@ -62,3 +62,26 @@ impl OpenAPI {
             })
     }
 }
+
+#[cfg(feature = "conversions")]
+use crate::v3_1;
+
+#[cfg(feature = "conversions")]
+impl From<v3_1::OpenApi> for OpenAPI {
+    fn from(o: v3_1::OpenApi) -> Self {
+        OpenAPI {
+            info: o.info.into(),
+            servers: o.servers.into_iter().map(Into::into).collect(),
+            paths: o.paths.unwrap_or_default().into(),
+            components: o.components.map(Into::into),
+            security: if o.security.is_empty() {
+                None
+            } else {
+                Some(o.security.into_iter().map(Into::into).collect())
+            },
+            tags: o.tags.into_iter().map(Into::into).collect(),
+            external_docs: o.external_docs.map(Into::into),
+            extensions: o.extensions,
+        }
+    }
+}

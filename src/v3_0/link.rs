@@ -59,3 +59,30 @@ pub enum LinkOperation {
     /// mutually exclusive of the operationRef field.
     OperationId(String),
 }
+
+#[cfg(feature = "conversions")]
+use crate::v3_1;
+
+#[cfg(feature = "conversions")]
+impl From<v3_1::LinkOperation> for LinkOperation {
+    fn from(i: v3_1::LinkOperation) -> Self {
+        match i {
+            v3_1::LinkOperation::OperationRef(s) => LinkOperation::OperationRef(s),
+            v3_1::LinkOperation::OperationId(s) => LinkOperation::OperationId(s),
+        }
+    }
+}
+
+#[cfg(feature = "conversions")]
+impl From<v3_1::Link> for Link {
+    fn from(l: v3_1::Link) -> Self {
+        Link {
+            description: l.description,
+            operation: l.operation.into(),
+            request_body: l.request_body,
+            parameters: l.parameters,
+            server: l.server.map(Into::into),
+            extensions: l.extensions,
+        }
+    }
+}

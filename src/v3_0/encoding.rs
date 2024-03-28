@@ -52,3 +52,24 @@ pub struct Encoding {
     #[serde(flatten, deserialize_with = "crate::util::deserialize_extensions")]
     pub extensions: IndexMap<String, serde_json::Value>,
 }
+
+#[cfg(feature = "conversions")]
+use crate::v3_1;
+
+#[cfg(feature = "conversions")]
+impl From<v3_1::Encoding> for Encoding {
+    fn from(e: v3_1::Encoding) -> Self {
+        Encoding {
+            content_type: e.content_type,
+            headers: e
+                .headers
+                .into_iter()
+                .map(|(k, v)| (k, ReferenceOr::from_v3_1(v)))
+                .collect(),
+            style: e.style.map(Into::into),
+            explode: e.explode,
+            allow_reserved: e.allow_reserved,
+            extensions: e.extensions,
+        }
+    }
+}

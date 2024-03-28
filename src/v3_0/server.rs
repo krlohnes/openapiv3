@@ -25,3 +25,28 @@ pub struct Server {
     #[serde(flatten, deserialize_with = "crate::util::deserialize_extensions")]
     pub extensions: IndexMap<String, serde_json::Value>,
 }
+
+#[cfg(feature = "conversions")]
+use crate::v3_1;
+
+#[cfg(feature = "conversions")]
+impl From<v3_1::Server> for Server {
+    fn from(s: v3_1::Server) -> Self {
+        let variables: Option<IndexMap<String, ServerVariable>> = if s.variables.is_empty() {
+            None
+        } else {
+            Some(
+                s.variables
+                    .into_iter()
+                    .map(|(k, v)| (k, v.into()))
+                    .collect(),
+            )
+        };
+        Server {
+            url: s.url,
+            description: s.description,
+            variables,
+            extensions: s.extensions,
+        }
+    }
+}

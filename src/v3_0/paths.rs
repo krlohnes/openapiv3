@@ -138,6 +138,48 @@ where
     ))
 }
 
+#[cfg(feature = "conversions")]
+use crate::v3_1;
+
+#[cfg(feature = "conversions")]
+impl From<v3_1::PathItem> for PathItem {
+    fn from(p: v3_1::PathItem) -> Self {
+        PathItem {
+            summary: p.summary,
+            description: p.description,
+            get: p.get.map(Into::into),
+            put: p.put.map(Into::into),
+            post: p.post.map(Into::into),
+            delete: p.delete.map(Into::into),
+            options: p.options.map(Into::into),
+            head: p.head.map(Into::into),
+            patch: p.patch.map(Into::into),
+            trace: p.trace.map(Into::into),
+            servers: p.servers.into_iter().map(Into::into).collect(),
+            parameters: p
+                .parameters
+                .into_iter()
+                .map(|v| ReferenceOr::from_v3_1(v))
+                .collect(),
+            extensions: p.extensions,
+        }
+    }
+}
+
+#[cfg(feature = "conversions")]
+impl From<v3_1::Paths> for Paths {
+    fn from(p: v3_1::Paths) -> Self {
+        Paths {
+            paths: p
+                .paths
+                .into_iter()
+                .map(|(k, v)| (k, ReferenceOr::from_v3_1(v)))
+                .collect(),
+            extensions: p.extensions,
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

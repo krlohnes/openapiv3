@@ -239,6 +239,18 @@ pub enum StringFormat {
     Binary,
 }
 
+#[cfg(feature = "conversions")]
+mod conversions {
+    use crate::v3_1;
+    impl From<v3_1::SchemaObject> for super::Schema {
+        fn from(s: v3_1::SchemaObject) -> Self {
+            let oldval = serde_json::to_value(&s).expect("Convert Schema to serde_json::Value");
+            serde_json::from_value(oldval)
+                .expect("Convert Openapi v3.1.0 Schema to Openapi V3.0.0 Schema")
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use serde_json::json;

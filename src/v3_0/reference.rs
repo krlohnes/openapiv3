@@ -90,3 +90,20 @@ impl<T> ReferenceOr<Box<T>> {
         }
     }
 }
+
+#[cfg(feature = "conversions")]
+use crate::v3_1;
+
+#[cfg(feature = "conversions")]
+impl<T> ReferenceOr<T> {
+    pub fn from_v3_1<X: Into<T>>(r: v3_1::ReferenceOr<X>) -> Self {
+        match r {
+            v3_1::ReferenceOr::Reference { reference, .. } => ReferenceOr::Reference { reference },
+            v3_1::ReferenceOr::Item(item) => ReferenceOr::Item(item.into()),
+            //This could go one way or the other. Item suits my curren needs better.
+            v3_1::ReferenceOr::DereferencedReference {
+                reference: _, item, ..
+            } => ReferenceOr::Item(item.into()),
+        }
+    }
+}

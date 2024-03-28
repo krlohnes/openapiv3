@@ -31,3 +31,21 @@ pub struct Info {
     #[serde(flatten, deserialize_with = "crate::util::deserialize_extensions")]
     pub extensions: IndexMap<String, serde_json::Value>,
 }
+
+#[cfg(feature = "conversions")]
+use crate::v3_1;
+
+#[cfg(feature = "conversions")]
+impl From<v3_1::Info> for Info {
+    fn from(i: v3_1::Info) -> Self {
+        Info {
+            title: i.title,
+            description: i.description,
+            terms_of_service: i.terms_of_service,
+            contact: i.contact.map(Into::into),
+            license: i.license.map(Into::into),
+            version: i.version,
+            extensions: i.extensions,
+        }
+    }
+}

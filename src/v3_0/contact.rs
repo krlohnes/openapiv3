@@ -19,3 +19,18 @@ pub struct Contact {
     #[serde(flatten, deserialize_with = "crate::util::deserialize_extensions")]
     pub extensions: IndexMap<String, serde_json::Value>,
 }
+
+#[cfg(feature = "conversions")]
+use crate::v3_1;
+
+#[cfg(feature = "conversions")]
+impl From<v3_1::Contact> for Contact {
+    fn from(c: v3_1::Contact) -> Self {
+        Contact {
+            name: c.name,
+            url: c.url,
+            email: c.email,
+            extensions: c.extensions,
+        }
+    }
+}

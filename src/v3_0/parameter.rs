@@ -230,3 +230,119 @@ impl Default for HeaderStyle {
         HeaderStyle::Simple
     }
 }
+
+#[cfg(feature = "conversions")]
+use crate::v3_1;
+
+#[cfg(feature = "conversions")]
+impl From<v3_1::ParameterData> for ParameterData {
+    fn from(p: v3_1::ParameterData) -> Self {
+        ParameterData {
+            name: p.name,
+            description: p.description,
+            required: p.required,
+            deprecated: p.deprecated,
+            format: p.format.into(),
+            example: p.example,
+            examples: p
+                .examples
+                .into_iter()
+                .map(|(k, v)| (k, ReferenceOr::from_v3_1(v)))
+                .collect(),
+            explode: p.explode,
+            extensions: p.extensions,
+        }
+    }
+}
+
+#[cfg(feature = "conversions")]
+impl From<v3_1::ParameterSchemaOrContent> for ParameterSchemaOrContent {
+    fn from(x: v3_1::ParameterSchemaOrContent) -> Self {
+        match x {
+            v3_1::ParameterSchemaOrContent::Schema(schema) => {
+                ParameterSchemaOrContent::Schema(ReferenceOr::Item(schema.into()))
+            }
+            v3_1::ParameterSchemaOrContent::Content(content) => ParameterSchemaOrContent::Content(
+                content.into_iter().map(|(k, v)| (k, v.into())).collect(),
+            ),
+        }
+    }
+}
+#[cfg(feature = "conversions")]
+impl From<v3_1::Parameter> for Parameter {
+    fn from(p: v3_1::Parameter) -> Self {
+        match p {
+            v3_1::Parameter::Query {
+                parameter_data,
+                allow_reserved,
+                style,
+                allow_empty_value,
+            } => Parameter::Query {
+                parameter_data: parameter_data.into(),
+                allow_reserved,
+                style: style.into(),
+                allow_empty_value,
+            },
+            v3_1::Parameter::Header {
+                parameter_data,
+                style,
+            } => Parameter::Header {
+                parameter_data: parameter_data.into(),
+                style: style.into(),
+            },
+            v3_1::Parameter::Path {
+                parameter_data,
+                style,
+            } => Parameter::Path {
+                parameter_data: parameter_data.into(),
+                style: style.into(),
+            },
+            v3_1::Parameter::Cookie {
+                parameter_data,
+                style,
+            } => Parameter::Cookie {
+                parameter_data: parameter_data.into(),
+                style: style.into(),
+            },
+        }
+    }
+}
+#[cfg(feature = "conversions")]
+impl From<v3_1::PathStyle> for PathStyle {
+    fn from(p: v3_1::PathStyle) -> Self {
+        match p {
+            v3_1::PathStyle::Matrix => PathStyle::Matrix,
+            v3_1::PathStyle::Label => PathStyle::Label,
+            v3_1::PathStyle::Simple => PathStyle::Simple,
+        }
+    }
+}
+
+#[cfg(feature = "conversions")]
+impl From<v3_1::QueryStyle> for QueryStyle {
+    fn from(x: v3_1::QueryStyle) -> Self {
+        match x {
+            v3_1::QueryStyle::Form => QueryStyle::Form,
+            v3_1::QueryStyle::SpaceDelimited => QueryStyle::SpaceDelimited,
+            v3_1::QueryStyle::PipeDelimited => QueryStyle::PipeDelimited,
+            v3_1::QueryStyle::DeepObject => QueryStyle::DeepObject,
+        }
+    }
+}
+
+#[cfg(feature = "conversions")]
+impl From<v3_1::CookieStyle> for CookieStyle {
+    fn from(x: v3_1::CookieStyle) -> Self {
+        match x {
+            v3_1::CookieStyle::Form => CookieStyle::Form,
+        }
+    }
+}
+#[cfg(feature = "conversions")]
+impl From<v3_1::HeaderStyle> for HeaderStyle {
+    fn from(x: v3_1::HeaderStyle) -> Self {
+        match x {
+            v3_1::HeaderStyle::Simple => HeaderStyle::Simple,
+        }
+    }
+}

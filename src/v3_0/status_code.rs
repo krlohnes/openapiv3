@@ -97,6 +97,19 @@ impl Serialize for StatusCode {
     }
 }
 
+#[cfg(feature = "conversions")]
+use crate::v3_1;
+
+#[cfg(feature = "conversions")]
+impl From<v3_1::StatusCode> for StatusCode {
+    fn from(c: v3_1::StatusCode) -> Self {
+        match c {
+            v3_1::StatusCode::Code(code) => StatusCode::Code(code),
+            v3_1::StatusCode::Range(range) => StatusCode::Range(range),
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::StatusCode;

@@ -130,3 +130,36 @@ mod tests {
         );
     }
 }
+
+#[cfg(feature = "conversions")]
+use crate::v3_1;
+
+#[cfg(feature = "conversions")]
+impl From<v3_1::Operation> for Operation {
+    fn from(o: v3_1::Operation) -> Self {
+        Operation {
+            tags: o.tags,
+            summary: o.summary,
+            description: o.description,
+            external_docs: o.external_docs.map(Into::into),
+            operation_id: o.operation_id,
+            parameters: o
+                .parameters
+                .into_iter()
+                .map(|v| ReferenceOr::from_v3_1(v))
+                .collect(),
+            request_body: o.request_body.map(|v| ReferenceOr::from_v3_1(v)),
+            responses: o
+                .responses
+                .map_or_else(|| Responses::default(), |r| r.into()),
+            deprecated: o.deprecated,
+            security: if !o.security.is_empty() {
+                None
+            } else {
+                o.security.into_iter().map(|v| v.into()).collect()
+            },
+            servers: o.servers.into_iter().map(|v| v.into()).collect(),
+            extensions: o.extensions,
+        }
+    }
+}

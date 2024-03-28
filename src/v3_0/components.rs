@@ -40,3 +40,68 @@ pub struct Components {
     #[serde(flatten, deserialize_with = "crate::util::deserialize_extensions")]
     pub extensions: IndexMap<String, serde_json::Value>,
 }
+
+#[cfg(feature = "conversions")]
+use crate::v3_1;
+
+#[cfg(feature = "conversions")]
+impl From<v3_1::Components> for Components {
+    fn from(a: v3_1::Components) -> Self {
+        Components {
+            security_schemes: a
+                .security_schemes
+                .into_iter()
+                .map(|(k, v)| (k, ReferenceOr::from_v3_1(v)))
+                .collect(),
+            responses: a
+                .responses
+                .into_iter()
+                .map(|(k, v)| (k, ReferenceOr::from_v3_1(v)))
+                .collect(),
+            parameters: a
+                .parameters
+                .into_iter()
+                .map(|(k, v)| (k, ReferenceOr::from_v3_1(v)))
+                .collect(),
+            examples: a
+                .examples
+                .into_iter()
+                .map(|(k, v)| (k, ReferenceOr::from_v3_1(v)))
+                .collect(),
+            request_bodies: a
+                .request_bodies
+                .into_iter()
+                .map(|(k, v)| (k, ReferenceOr::from_v3_1(v)))
+                .collect(),
+            headers: a
+                .headers
+                .into_iter()
+                .map(|(k, v)| (k, ReferenceOr::from_v3_1(v)))
+                .collect(),
+            schemas: a
+                .schemas
+                .into_iter()
+                .map(|(k, v)| (k, ReferenceOr::Item(v.into())))
+                .collect(),
+            links: a
+                .links
+                .into_iter()
+                .map(|(k, v)| (k, ReferenceOr::from_v3_1(v)))
+                .collect(),
+            callbacks: a
+                .callbacks
+                .into_iter()
+                .map(|(k, v)| match v {
+                    v3_1::ReferenceOr::Item(i) => (k, ReferenceOr::Item(callback_from_v3_1(i))),
+                    v3_1::ReferenceOr::Reference { reference, .. } => {
+                        (k, ReferenceOr::Reference { reference })
+                    }
+                    v3_1::ReferenceOr::DereferencedReference {
+                        reference: _, item, ..
+                    } => (k, ReferenceOr::Item(callback_from_v3_1(item))),
+                })
+                .collect(),
+            extensions: a.extensions,
+        }
+    }
+}

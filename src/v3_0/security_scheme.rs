@@ -106,3 +106,125 @@ pub enum OAuth2Flow {
         scopes: IndexMap<String, String>,
     },
 }
+
+#[cfg(feature = "conversions")]
+mod conversions {
+    use super::*;
+    use crate::v3_1;
+
+    impl From<v3_1::ApiKeyLocation> for APIKeyLocation {
+        fn from(s: v3_1::ApiKeyLocation) -> Self {
+            match s {
+                v3_1::ApiKeyLocation::Query => APIKeyLocation::Query,
+                v3_1::ApiKeyLocation::Header => APIKeyLocation::Header,
+                v3_1::ApiKeyLocation::Cookie => APIKeyLocation::Cookie,
+            }
+        }
+    }
+
+    impl From<v3_1::OAuth2Flows> for OAuth2Flows {
+        fn from(s: v3_1::OAuth2Flows) -> Self {
+            OAuth2Flows {
+                implicit: s.implicit.map(Into::into),
+                password: s.password.map(Into::into),
+                client_credentials: s.client_credentials.map(Into::into),
+                authorization_code: s.authorization_code.map(Into::into),
+            }
+        }
+    }
+
+    impl From<v3_1::OAuth2Flow> for OAuth2Flow {
+        fn from(s: v3_1::OAuth2Flow) -> Self {
+            match s {
+                v3_1::OAuth2Flow::Implicit {
+                    authorization_url,
+                    refresh_url,
+                    scopes,
+                } => OAuth2Flow::Implicit {
+                    authorization_url,
+                    refresh_url,
+                    scopes,
+                },
+                v3_1::OAuth2Flow::Password {
+                    refresh_url,
+                    token_url,
+                    scopes,
+                } => OAuth2Flow::Password {
+                    refresh_url,
+                    token_url,
+                    scopes,
+                },
+                v3_1::OAuth2Flow::ClientCredentials {
+                    refresh_url,
+                    token_url,
+                    scopes,
+                } => OAuth2Flow::ClientCredentials {
+                    refresh_url,
+                    token_url,
+                    scopes,
+                },
+                v3_1::OAuth2Flow::AuthorizationCode {
+                    authorization_url,
+                    token_url,
+                    refresh_url,
+                    scopes,
+                } => OAuth2Flow::AuthorizationCode {
+                    authorization_url,
+                    token_url,
+                    refresh_url,
+                    scopes,
+                },
+            }
+        }
+    }
+
+    impl From<v3_1::SecurityScheme> for SecurityScheme {
+        fn from(s: v3_1::SecurityScheme) -> Self {
+            match s {
+                v3_1::SecurityScheme::ApiKey {
+                    location,
+                    name,
+                    description,
+                    extensions,
+                } => SecurityScheme::APIKey {
+                    location: location.into(),
+                    name,
+                    description,
+                    extensions,
+                },
+                v3_1::SecurityScheme::Http {
+                    scheme,
+                    bearer_format,
+                    description,
+                    extensions,
+                } => SecurityScheme::HTTP {
+                    scheme,
+                    bearer_format,
+                    description,
+                    extensions,
+                },
+                v3_1::SecurityScheme::OAuth2 {
+                    flows,
+                    description,
+                    extensions,
+                } => SecurityScheme::OAuth2 {
+                    flows: flows.into(),
+                    description,
+                    extensions,
+                },
+                v3_1::SecurityScheme::OpenIdConnect {
+                    open_id_connect_url,
+                    description,
+                    extensions,
+                } => SecurityScheme::OpenIDConnect {
+                    open_id_connect_url,
+                    description,
+                    extensions,
+                },
+                v3_1::SecurityScheme::MutualTls { .. } => {
+                    panic!("MutualTLS is not supported in Open API 3.0.x")
+                }
+            }
+        }
+    }
+}
